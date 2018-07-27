@@ -1,25 +1,42 @@
 import React, { Component } from 'react'
 import styled from 'styled-components';
+import { Transition } from "react-spring";
 import { Portal, absolute } from 'Utilities';
 import Icon from './Icon';
 import { Card } from './Cards';
+
+
 
 export default class Modal extends Component {
   render() {
     const { children, toggle, on } = this.props;
     return (
       <Portal>
+        <Transition
+          from={{opacity: 0, bgOpacity: 0, y: -50}}
+          enter={{opacity: 1, bgOpacity: 0.5, y: 0}}
+          leave={{opacity: 0, bgOpacity:0, y: 50}}
+        >
         {on && (
-          <ModalWrapper>
-            <ModalCard>
-              <CloseButton onClick={toggle}>
-                <Icon color='red' name='close' />
-              </CloseButton>
-              <div>{children}</div>
-            </ModalCard>
-            <Background onClick={toggle}/>
-          </ModalWrapper>
+          (styles) => (
+            <ModalWrapper>
+              <ModalCard style={{
+                transform: `translate3d(0, ${styles.y}px, 0)`,
+                ...styles
+                }}>
+                <CloseButton onClick={toggle}>
+                  <Icon color='red' name='close' />
+                </CloseButton>
+                <div>{children}</div>
+              </ModalCard>
+              <Background
+                style={{opacity: styles.bgOpacity}}
+                onClick={toggle}
+              />
+            </ModalWrapper>
+          )
         )}
+        </Transition>
       </Portal>
     )
   }
