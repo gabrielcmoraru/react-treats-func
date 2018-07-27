@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components';
-import { Transition } from "react-spring";
+import { Transition, animated, config } from "react-spring";
 import { Portal, absolute } from 'Utilities';
 import Icon from './Icon';
 import { Card } from './Cards';
@@ -13,6 +13,8 @@ export default class Modal extends Component {
     return (
       <Portal>
         <Transition
+          native
+          config={config.stiff}
           from={{opacity: 0, bgOpacity: 0, y: -50}}
           enter={{opacity: 1, bgOpacity: 0.5, y: 0}}
           leave={{opacity: 0, bgOpacity:0, y: 50}}
@@ -21,7 +23,9 @@ export default class Modal extends Component {
           (styles) => (
             <ModalWrapper>
               <ModalCard style={{
-                transform: `translate3d(0, ${styles.y}px, 0)`,
+                transform: styles.y.interpolate(
+                  y => `translate3d(0, ${y}px, 0)`
+                ),
                 ...styles
                 }}>
                 <CloseButton onClick={toggle}>
@@ -30,7 +34,10 @@ export default class Modal extends Component {
                 <div>{children}</div>
               </ModalCard>
               <Background
-                style={{opacity: styles.bgOpacity}}
+                style={{opacity: styles.bgOpacity.interpolate(
+                   bgOpacity => bgOpacity
+                  )
+                }}
                 onClick={toggle}
               />
             </ModalWrapper>
@@ -51,7 +58,9 @@ const ModalWrapper = styled.div`
   align-items: center;
 `;
 
-const ModalCard = Card.extend`
+const AnimCard = Card.withComponent(animated.div);
+
+const ModalCard = AnimCard.extend`
   position: relative;
   min-width: 320px;
   z-index: 10;
@@ -68,7 +77,7 @@ const CloseButton = styled.button`
   })};
 `;
 
-const Background = styled.div`
+const Background = styled(animated.div)`
   ${absolute({})};
   width: 100%;
   height: 100%;
